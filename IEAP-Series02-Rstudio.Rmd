@@ -1,7 +1,8 @@
 ---
-title: "R_Series_02"
+title: "IEAP-Series02-Rstudio.Rmd"
 output: html_notebook
 ---
+### 1. IEAP-Series02-Rstudio
 
 IEAP-2025 Series 02 RStudio Data mining and statistical tests Denis MOTTET 24 September, 2025, 21:28 \# 1 Correlations and linear regression In this series of exercises, you will explore correlations and linear regression, using a dataset from a real experiment.
 
@@ -25,7 +26,7 @@ summary(nonuse)
 | SANU | Shoulder Antepulsion Non Use | \%   | 0-100 |
 | EENU | Elbow Extension Non Use      | \%   | 0-100 |
 
-### Description of the experiment, variables, and data characteristics  
+Description of the experiment, variables, and data characteristics  
 
 **Description of the experiment**  
 The dataset comes from a clinical experiment conducted with post-stroke patients. The aim is to study nonuse of the upper limb, by quantifying how much patients avoid using certain joints during reaching tasks. 
@@ -116,7 +117,7 @@ Limits :
 - Correlation ≠ causation: cannot infer that PANU causes SANU
 
 
-## 2 Statistical tests: comparison of medians (or means?) In this series of exercises, you will explore how to compare two groups of data, using non-parametric tests (or parametric tests… if it makes sense to do so).
+### 2 Statistical tests: comparison of medians (or means?)
 
 2.1 Make clear what is a statistical test, and when to use it. Below are some questions to guide your analysis. You can answer them in your notebook, with a short sentence for each question.
 
