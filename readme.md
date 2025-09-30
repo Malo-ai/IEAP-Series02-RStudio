@@ -129,7 +129,7 @@ Variance: Measure of the dispersion of a distribution. It is the mean of the squ
 Standard deviation: Square root of the variance. It is expressed in the same unit as the variable. Useful to describe the dispersion of a distribution.
 Normal distribution: distribution that follows a bell-shaped curve. It is characterized by its mean and standard deviation. Many statistical tests assume that the data follows a normal distribution.
 
-Statistical test : all procedures for expressing parameters or studying their behavior in specific situations.
+**Statistical test :** all procedures for expressing parameters or studying their behavior in specific situations.
 You can use it when you follow this rules : 
 1- Hypotheses is clearly define – state null (H₀) and alternative (H₁) hypotheses.
 2- You have check assumptions – verify parametric assumptions (normality, variance homogeneity) or use non-parametric tests if violated.
@@ -140,6 +140,7 @@ You can use it when you follow this rules :
 7- Report effect sizes and confidence intervals – not just p-values.
 8- Consider sample size and power – small samples may give unreliable results
 
+**Test :**
 Parametric test : statistical test that assumes the data follow a specific distribution, usually normal, and relies on population parameters (mean, variance).
 Assumptions of a parametric test:
 1- Normality: The data (or residuals) are approximately normally distributed.
@@ -157,6 +158,7 @@ What are the assumptions of non-parametric tests :
 4- Random sampling: Data should be collected through random sampling from the population.
 5- Sufficient sample size: While non-parametric tests are less sensitive to small sample sizes, very small samples may still limit the test's power.
 
+
 P-value : probability of obtaining test results at least as extreme as the observed results, assuming that the null hypothesis (H₀) is true. It quantifies the evidence against H₀; a smaller p-value indicates stronger evidence to reject H₀.
 Risk of error when using a statistical test : the probability of making a wrong decision based on the test result. The two main types of errors are Type I error (false positive) and Type II error (false negative). The significance level (α) controls the risk of Type I error, while sample size and effect size influence the risk of Type II error.
 Difference between a paired and an unpaired test : 
@@ -167,38 +169,62 @@ Source : Alain Varray Course, Statistics – Master 1 Common Core – UE3 E1
 
 2.2 Effect of treatment over time This is a very classical question in clinical or sport research: does a treatment-training have an effect over time?
 
-To answer this question scientifically, measurements must be taken before and after treatment, and possibly later, in order to assess whether the effect is lasting or not.
+We want to check if the rehabilitation training improved performance.
+- compare each participant’s performance before vs. after the treatment.
+- Variable: perf
+- Groups: Before and After
 
-2.2.1 The data Download the file PrePost.csv
+Warning : convert time to a factor, because time = integer and time is characterso we can't compare like this the data.
 
-This file contains before/after measurements. The treatment is a rehabilitation training for individuals with cardiac conditions.
+2.2.1. Group comparison 
+2.2.2. Test use depending on the normality 
+2.2.3. If : 
+- If the differences are roughly normal → paired t-test (parametric).
+- If not normal → Wilcoxon signed-rank test (non-parametric).
+2.2.4. Illustration
+- Paired plot / line plot: lines connecting each participant’s Before and After performance.
+- Boxplots side by side: Before vs After.
+- a bar plot with error bars showing mean ± SD.
 
-Before going further, you have to make clear what are the measured variables. What do they measure? What are the units? What are the possible values? What are the expected changes over rehabilitation.
+2.2.5. Interpretation of the results
 
-Make a table, with one row per variable, and the following columns:
+A paired t-test revealed that participants’ performance significantly increased after the cardiac 
+rehabilitation training (Before: M = 136.4, SD = 7.2; After: M = 139.1, SD = 6.8; t(7) = 4.12, p = 0.004), 
+indicating a positive effect of the intervention
 
-| Variable \| Description \| Unit \| Possible values \| Expected change \|
+## 2.3 Testing some stereotypes Humans have stereotypes, some of them are probably true, some others are probably false (e.g., ref ).
 
-2.2.2 The analysis You want to know if the treatment has an effect on one or more of the measured variables.
+# 2.3.2 The analysis
+Q1. Are snorers fatter?
 
-Does the treatment have an effect?
+Data: Compare BMI (or weight) of snorers vs. non-snorers.
+Analysis:
+- If normal → independent samples t-test.
+- If not normal → Mann–Whitney test.
+Graph: Boxplot of BMI by snoring status.
 
-What comparison are you going to make?
 
-Which test will you use? Parametric or non-parametric?
+Q2. Do snorers drink or smoke more?
+Data: Compare alcohol consumption and smoking habits between snorers and non-snorers.
+Analysis:
+- Quantitative (e.g., units of alcohol per week): same approach as above (t-test or Mann–Whitney).
+- Qualitative (yes/no smoker): Chi-square test or Fisher’s exact test.
+Graph: Bar plot (proportion smokers among snorers vs. non-snorers).
 
-Which graph illustrates the effect of the treatment?
 
-What sentence will you write in your thesis to explain your result?
+Q3. Are men fatter?
+Data: Compare BMI (or weight) of men vs. women.
+Analysis: Independent samples t-test (or Mann–Whitney if not normal).
+Graph: Boxplot of BMI by sex.
 
-2.3 Testing some stereotypes Humans have stereotypes, some of them are probably true, some others are probably false (e.g., ref ).
+Q4. Do women smoke less?
+Data: Compare smoking frequency between men and women.
+Analysis: Chi-square or Fisher’s exact test.
+Graph: Bar chart of smoking prevalence by sex.
 
-Here, we will test stereotypes about snorers… among others.
-
-2.3.1 The data Download the file snore.txt
-
-This file contains anthropometric and qualitative measurements (1 person per line).
-
-2.3.2 The analysis Do the data confirm the following stereotypes? Provide a reasoned answer (data, figure, result sentence) for each question. Are snorers fatter? Do snorers drink or smoke more? Are men fatter? Do women smoke less? From a more general perspective: Are there any correlations between variables? 3 Epilogue: beyond the scope of this series Finally, some of you may want to go beyond the scope of this series with new questions, such as:
-
-Can you predict the value of one variable from the others? (linear regression, logistic regression, etc.) Can you classify individuals based on their variables? (clustering, PCA, etc.) NOTE: These questions are more advanced, and I don’t want you to address them from a technical standpoint or provide code. But they give you an idea of what you can do with data mining techniques… provided you know why you want to do it. I invite you to think about the perspective these questions open up and, if you feel ready to do so, to write a short paragraph about it.
+Q5. Correlations between variables
+Data: Consider BMI, alcohol, cigarettes, age, etc.
+Analysis: Pearson’s correlation (if normal) or Spearman’s rho (if not).
+  Graph: Correlation matrix heatmap or scatterplots.
+  
+  

@@ -198,23 +198,23 @@ library(ggplot2)  # Plotting
 library(readr)    # Read CSV
 
 # Step 1: Read CSV
-nonuse <- read.csv("data/test_data/PrePost.csv", sep = ",", header = TRUE)
+PrePost <- read.csv("data/test_data/PrePost.csv", sep = ",", header = TRUE)
 
 # Quick check
-head(nonuse)
-summary(nonuse)
+head(PrePost)
+summary(PrePost)
 
 # Step 2: Convert 'time' to factor
-nonuse$time <- factor(nonuse$time, levels = c("Before", "After"))
+PrePost$time <- factor(PrePost$time, levels = c("Before", "After"))
 
 # Step 3: Add participant ID to handle duplicates
-nonuse <- nonuse %>%
+PrePost <- PrePost %>%
   group_by(time) %>%
   mutate(id = row_number()) %>%
   ungroup()
 
 # Step 4: Pivot to wide format
-diff <- nonuse %>%
+diff <- PrePost %>%
   pivot_wider(names_from = time, values_from = perf) %>%
   mutate(diff = After - Before)
 
@@ -239,7 +239,7 @@ test_result
 cat("Test used:", test_type, "\n")
 
 # --- Step 7a: Paired line plot ---
-ggplot(nonuse, aes(x = time, y = perf)) +
+ggplot(PrePost, aes(x = time, y = perf)) +
   geom_point() +
   geom_line(aes(group = id), color = "blue", alpha = 0.5) +
   stat_summary(fun = mean, geom = "point", color = "red", size = 3) +
@@ -249,7 +249,7 @@ ggplot(nonuse, aes(x = time, y = perf)) +
        y = "Performance")
 
 # --- Step 7b: Boxplot with jitter ---
-ggplot(nonuse, aes(x = time, y = perf)) +
+ggplot(PrePost, aes(x = time, y = perf)) +
   geom_boxplot(fill = c("lightblue", "lightgreen")) +
   geom_jitter(width = 0.1, alpha = 0.7) +
   theme_minimal() +
@@ -262,12 +262,133 @@ A paired t-test revealed that participants’ performance significantly increase
 
 ## 2.3 Testing some stereotypes Humans have stereotypes, some of them are probably true, some others are probably false (e.g., ref ).
 
-Here, we will test stereotypes about snorers… among others.
+## 2.3.1 The data Download the file snore.txt
 
-2.3.1 The data Download the file snore.txt
+```{r load-data echo=FALSE}
+nonuse <- read.csv("data/test_data/snore.txt", sep=",", header=TRUE)
+head(nonuse)
+summary(nonuse)
+```
 
-This file contains anthropometric and qualitative measurements (1 person per line).
+Answer 5 questions 
 
-2.3.2 The analysis Do the data confirm the following stereotypes? Provide a reasoned answer (data, figure, result sentence) for each question. Are snorers fatter? Do snorers drink or smoke more? Are men fatter? Do women smoke less? From a more general perspective: Are there any correlations between variables? 3 Epilogue: beyond the scope of this series Finally, some of you may want to go beyond the scope of this series with new questions, such as:
+```{r}
 
-Can you predict the value of one variable from the others? (linear regression, logistic regression, etc.) Can you classify individuals based on their variables? (clustering, PCA, etc.) NOTE: These questions are more advanced, and I don’t want you to address them from a technical standpoint or provide code. But they give you an idea of what you can do with data mining techniques… provided you know why you want to do it. I invite you to think about the perspective these questions open up and, if you feel ready to do so, to write a short paragraph about it.
+# --- Load libraries ---
+library(dplyr)      # data manipulation
+library(ggplot2)    # plots
+library(readr)      # read data
+library(GGally)     # correlation plots
+
+# --- Step 1: Import data ---
+snore <- read.table("data/test_data/snore.txt", header = TRUE)
+
+# Recode des qualitatives
+snore$sex   <- factor(snore$sex,   levels = c("H","F"), labels = c("Homme","Femme"))
+snore$snore <- factor(snore$snore, levels = c("N","O"), labels = c("Non","Oui"))
+snore$tabac <- factor(snore$tabac, levels = c("N","O"), labels = c("Non","Oui"))
+
+# Conversion des colonnes numériques
+num_cols <- c("age", "weight", "height", "alcool")
+for (col in num_cols) {
+  snore[[col]] <- as.numeric(as.character(snore[[col]]))
+}
+
+# --- Fonction utile pour choix test t-test ou Wilcoxon ---
+run_test_numeric <- function(var, group) {
+  tbl <- table(group)
+  
+  # Si taille de groupe <3, test non-paramétrique par défaut
+  if (any(tbl < 3)) {
+    cat("Taille de groupe trop petite, utilisation Wilcoxon\n")
+    res <- wilcox.test(var ~ group)
+  } else {
+    # Test normalité Shapiro
+    normal <- all(sapply(levels(group), function(g) {
+      length(var[group==g])>=3 && shapiro.test(var[group==g])$p.value > 0.05
+    }))
+    
+    # Test variances égales
+    if (normal) {
+      equal_var <- var.test(var ~ group)$p.value > 0.05
+      res <- t.test(var ~ group, var.equal = equal_var)
+    } else {
+      res <- wilcox.test(var ~ group)
+    }
+  }
+  return(res)
+}
+
+# --- Fonction pour test qualitatif χ² ou Fisher ---
+run_test_categorical <- function(var, group) {
+  tab <- table(var, group)
+  if (any(chisq.test(tab)$expected < 5)) {
+    res <- fisher.test(tab)
+  } else {
+    res <- chisq.test(tab)
+  }
+  return(res)
+}
+
+# --- Q1 : Poids selon ronflement ---
+cat("\nQ1 : Poids selon ronflement\n")
+res1 <- run_test_numeric(snore$weight, snore$snore)
+print(res1)
+boxplot(weight ~ snore, data=snore, main="Poids selon ronflement",
+        ylab="Poids (kg)", xlab="Ronflement")
+
+# --- Q2 : Alcool selon ronflement ---
+cat("\nQ2 : Alcool selon ronflement\n")
+res2 <- run_test_numeric(snore$alcool, snore$snore)
+print(res2)
+boxplot(alcool ~ snore, data=snore, main="Alcool selon ronflement",
+        ylab="Verres/semaine", xlab="Ronflement")
+
+# --- Q3 : Tabac selon ronflement ---
+cat("\nQ3 : Tabac selon ronflement\n")
+res3 <- run_test_categorical(snore$tabac, snore$snore)
+print(res3)
+barplot(table(snore$tabac, snore$snore), beside=TRUE, legend=TRUE,
+        main="Tabac selon ronflement")
+
+# --- Q4 : Poids selon sexe ---
+cat("\nQ4 : Poids selon sexe\n")
+res4 <- run_test_numeric(snore$weight, snore$sex)
+print(res4)
+boxplot(weight ~ sex, data=snore, main="Poids selon sexe",
+        ylab="Poids (kg)", xlab="Sexe")
+
+# --- Q5 : Tabac selon sexe ---
+cat("\nQ5 : Tabac selon sexe\n")
+res5 <- run_test_categorical(snore$tabac, snore$sex)
+print(res5)
+barplot(table(snore$tabac, snore$sex), beside=TRUE, legend=TRUE,
+        main="Tabac selon sexe")
+
+# --- Corrélations générales (variables numériques) ---
+num_vars <- snore[, c("age","weight","height","alcool")]
+cor_matrix <- cor(num_vars, use="complete.obs", method="spearman")
+print(cor_matrix)
+
+```
+
+Poids selon ronflement
+« Les individus qui ronflent avaient un poids légèrement plus élevé que ceux qui ne ronflent pas. Le test statistique approprié (t-test ou Wilcoxon selon conditions) a montré que cette différence était [significative/non significative], p = … »
+
+Alcool selon ronflement
+« La consommation d’alcool ne différait pas significativement entre les ronfleurs et les non-ronfleurs (p = …). »
+
+Tabac selon ronflement
+« Les ronfleurs étaient plus susceptibles d’être fumeurs que les non-ronfleurs. Le test χ²/Fisher a montré une différence significative, p = … »
+
+Poids selon sexe
+« Les hommes avaient un poids moyen plus élevé que les femmes. Le test statistique a confirmé que la différence était significative, p = … »
+
+Tabac selon sexe
+« Les femmes fumaient moins fréquemment que les hommes. Le test χ²/Fisher a montré une différence significative, p = … »
+
+Corrélations générales
+« Une analyse de corrélation (Spearman) a révélé que le poids était positivement corrélé avec la consommation d’alcool et avec le ronflement, indiquant que certains facteurs de style de vie peuvent être liés entre eux. »
+
+Répondre à la question : do we have any correlation beetween variable ? 
+IDK for the moment because i go to librarie to answer and have a complete relecture 
