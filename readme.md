@@ -1,30 +1,161 @@
-# A minimal template for data analysis with RStudio
+---
+title: "R_Series_02"
+output: html_notebook
+---
 
-This is a minimal template for data analysis with RStudio, intended to researchers in human movement sciences that are new to RStudio.  
+IEAP-2025 Series 02 RStudio Data mining and statistical tests Denis MOTTET 24 September, 2025, 21:28 \# 1 Correlations and linear regression In this series of exercises, you will explore correlations and linear regression, using a dataset from a real experiment.
 
-Cloning this template for each new data analysis problem should facilitate data analyses with RStudio and minimize potential errors.
+## 1.1 The problem
 
-# Features 
-- A minimal RStudio project structure
-- A R Markdown notebook with a minimal data analysis pipeline
-- A `.gitignore` file to tell Git which files to share and not to share
+There is a relationship between the nonuse of the proximal part of the upper limb (PANU) and the nonuse of the shoulder (SANU) or the elbow (EENU) ? 
 
-# Usage (without Git)
+## 1.2 The data
 
-- Download as a zip file (green button `< > Code` on the top right of the page)
-- Expand the archive on your computer (e.g., in your `Download` folder).
-- Rename the extracted folder with the name of your new project (e.g., `SeriesOO_analysis`).
-- Move the new `SeriesOO_analysis` folder where it should be located (e.g., in your `Documents/CodeProjects/` directory)
+Data is far from perfect, but this is the reality of experimental data, especially in the case of clinical data ==> Download the file NonUse.csv from the course Moodle.
+
+```{r load-data echo=FALSE}
+nonuse <- read.csv("data/test_data/NonUse.csv", sep=",", header=TRUE)
+head(nonuse)
+summary(nonuse)
+```
+
+| name | description                  | unit | range |
+|------|------------------------------|------|-------|
+| PANU | Proximal Arm Non Use         | \%   | 0-100 |
+| SANU | Shoulder Antepulsion Non Use | \%   | 0-100 |
+| EENU | Elbow Extension Non Use      | \%   | 0-100 |
+
+### Description of the experiment, variables, and data characteristics  
+
+**Description of the experiment**  
+The dataset comes from a clinical experiment conducted with post-stroke patients. The aim is to study nonuse of the upper limb, by quantifying how much patients avoid using certain joints during reaching tasks. 
+
+Three levels of nonuse were measured: 
+proximal arm (PANU), 
+shoulder antepulsion (SANU) 
+and elbow extension (EENU) 
+The central question is: is proximal nonuse (PANU) related to nonuse of the shoulder or the elbow?  
+
+**Variables**  
+All variables are continuous, expressed as percentages, and computed by comparing performances between two experimental conditions (free trunk vs blocked trunk).  
+- PANU (Proximal Arm Non Use): nonuse of the proximal arm segment (upper arm).  
+  Unit: % – Theoretical range: 0–100  
+- SANU (Shoulder Antepulsion Non Use): nonuse of the shoulder joint in antepulsion.  
+  Unit: % – Theoretical range: 0–100  
+- EENU (Elbow Extension Non Use): nonuse of the elbow joint in extension.  
+  Unit: % – Theoretical range: 0–100  
+
+**Data characteristics**  
+Each row corresponds to one participant (post-stroke).  
+Columns display the measures for `PANU`, `SANU`, `EENU`.  
+Values are real numbers, theoretically between 0 and 100.  
+In practice, some results may be negative or greater than 100 due to experimental noise.  
+The values for (`EENU`) and (`SANU`) are missing for patients 5 and 6.  
 
 
-# Usage (with Git)
-As this is a template repository, you can clone it to your computer and use it as a starting point for your new data analysis project.
-- Do exactly the same as above, plus... 
-- Use GitHub-Desktop to create a new Git repository from the folder you just created.
-  - Click on `File` > `New repository...` You will need to provide:
-    - The name of your new project (e.g., `ECG_analysis`).
-    - A short description of your project (e.g., `ECG analysis of 100 healthy individuals for my PhD`).
-    - The path to the folder you just created (e.g., `Documents/CodeProjects/ECG_analysis`).
-    - Choose None for the .gitignore file (this template already has a specific one).
-    - Choose None for the License file (this template already has a GNU GPLv3 License).
+## 1.3 Corelation analysis
 
+Since some values are missing, we use a Spearman correlation to observe whether patients with high PANU tend to have high SANU or EENU, without assuming a normal or linear distribution.
+
+```{r}
+cor.test(nonuse$PANU, nonuse$SANU, method="spearman")
+```
+
+Spearman correlation revealed a weak but significant positive association between PANU and SANU (ρ = 0.22, p = 0.002), indicating that patients with higher proximal arm nonuse tended to exhibit slightly higher shoulder nonuse.
+
+```{r}
+cor.test(nonuse$PANU, nonuse$EENU, method="spearman")
+```
+Spearman correlation revealed a moderate and highly significant positive association between PANU and EENU (ρ = 0.39, p < 0.001), indicating that patients with higher proximal arm nonuse tended to also exhibit higher elbow nonuse.
+
+Visualize the PANU-SANU relationship and the PANU-EENU relationship
+
+```{r plot sanu}
+library(ggplot2)
+ggplot(nonuse, aes(x=PANU, y=SANU)) +
+  geom_point() +
+  xlim(-100, 100) +
+  ylim(-100, 100) +
+  labs(title="PANU vs SANU", x="PANU (%)", y="SANU (%)") +
+  theme_minimal()
+```
+
+Perform a linear regression for PANU-SANU (and for PANU-EENU) \*\* we do not predit a linear relationship between the variable, but we do it because it is asked...\*\*
+
+```{r plot sanu}
+library(ggplot2)
+ggplot(nonuse, aes(x=PANU, y=EENU)) +
+  geom_point() +
+  geom_smooth(method="lm", se=FALSE, color="blue") +
+  #xlim(-100, 100) +
+  #ylim(-100, 100) +
+  labs(title="PANU vs EENU", x="PANU (%)", y="EENU (%)") +
+  theme_minimal()
+```
+
+Give the regression equations: PANU = a \* SANU + b and PANU = a \* EENU + b
+
+```{r lm sanu}
+lm_sanu <- lm(SANU ~ PANU, data=nonuse)
+summary(lm_sanu)
+coef(lm_sanu)
+slope <- coef(lm_sanu)[2]
+intercept <- coef(lm_sanu)[1]
+cat("Regression equation: SANU =", slope, "* PANU +", intercept, "\n")
+```
+Results summarize: 
+Linear regression indicated a very weak positive relationship between proximal arm nonuse (PANU) and shoulder nonuse (SANU), but this association was not statistically significant (SANU = 0.089 * PANU + 0.586, p = 0.171, R² = 0.009). Spearman correlation, however, suggested a weak monotone trend (ρ = 0.22, p = 0.002), indicating that patients with higher PANU may slightly tend to have higher SANU.
+
+
+Limits : 
+
+- Linear regression assumptions: the relationship may be monotone rather than strictly linear, which reduces R².
+- Weak association: slope is small, explaining very little variance.
+- Missing data: 223 observations were removed, reducing power.
+- Outliers: residuals range widely (-40 to 39), which can distort linear estimates.
+- Correlation ≠ causation: cannot infer that PANU causes SANU
+
+
+### 2 Statistical tests: comparison of medians (or means?)
+
+2.1 Make clear what is a statistical test, and when to use it. Below are some questions to guide your analysis. You can answer them in your notebook, with a short sentence for each question.
+
+What is a median? A mean? What is a variance? A standard deviation? What is a normal distribution? What is a statistical test? When to use a statistical test? What is a parametric test? A non-parametric test? What are the assumptions of parametric tests? What are the assumptions of non-parametric tests? What is a p-value? What is the risk of error when using a statistical test? What is the difference between a paired and an unpaired test? You can use your favorite LLM, book or web site to answer these questions, but you have to provide at least one reference for each answer (book, article, URL, LLM prompt, etc.).
+
+2.2 Effect of treatment over time This is a very classical question in clinical or sport research: does a treatment-training have an effect over time?
+
+To answer this question scientifically, measurements must be taken before and after treatment, and possibly later, in order to assess whether the effect is lasting or not.
+
+2.2.1 The data Download the file PrePost.csv
+
+This file contains before/after measurements. The treatment is a rehabilitation training for individuals with cardiac conditions.
+
+Before going further, you have to make clear what are the measured variables. What do they measure? What are the units? What are the possible values? What are the expected changes over rehabilitation.
+
+Make a table, with one row per variable, and the following columns:
+
+| Variable \| Description \| Unit \| Possible values \| Expected change \|
+
+2.2.2 The analysis You want to know if the treatment has an effect on one or more of the measured variables.
+
+Does the treatment have an effect?
+
+What comparison are you going to make?
+
+Which test will you use? Parametric or non-parametric?
+
+Which graph illustrates the effect of the treatment?
+
+What sentence will you write in your thesis to explain your result?
+
+2.3 Testing some stereotypes Humans have stereotypes, some of them are probably true, some others are probably false (e.g., ref ).
+
+Here, we will test stereotypes about snorers… among others.
+
+2.3.1 The data Download the file snore.txt
+
+This file contains anthropometric and qualitative measurements (1 person per line).
+
+2.3.2 The analysis Do the data confirm the following stereotypes? Provide a reasoned answer (data, figure, result sentence) for each question. Are snorers fatter? Do snorers drink or smoke more? Are men fatter? Do women smoke less? From a more general perspective: Are there any correlations between variables? 3 Epilogue: beyond the scope of this series Finally, some of you may want to go beyond the scope of this series with new questions, such as:
+
+Can you predict the value of one variable from the others? (linear regression, logistic regression, etc.) Can you classify individuals based on their variables? (clustering, PCA, etc.) NOTE: These questions are more advanced, and I don’t want you to address them from a technical standpoint or provide code. But they give you an idea of what you can do with data mining techniques… provided you know why you want to do it. I invite you to think about the perspective these questions open up and, if you feel ready to do so, to write a short paragraph about it.
