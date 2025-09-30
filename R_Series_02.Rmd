@@ -7,13 +7,11 @@ IEAP-2025 Series 02 RStudio Data mining and statistical tests Denis MOTTET 24 Se
 
 ## 1.1 The problem
 
-You want to know if there is a relationship between the nonuse of the proximal part of the upper limb (PANU) and the nonuse of the shoulder (SANU) or the elbow (EENU).
+There is a relationship between the nonuse of the proximal part of the upper limb (PANU) and the nonuse of the shoulder (SANU) or the elbow (EENU) ? 
 
 ## 1.2 The data
 
-As you will see, the data is far from perfect, but this is the reality of experimental data, especially in the case of clinical data.
-
-Download the file NonUse.csv from the course Moodle.
+Data is far from perfect, but this is the reality of experimental data, especially in the case of clinical data ==> Download the file NonUse.csv from the course Moodle.
 
 ```{r load-data echo=FALSE}
 nonuse <- read.csv("data/test_data/NonUse.csv", sep=",", header=TRUE)
@@ -21,17 +19,43 @@ head(nonuse)
 summary(nonuse)
 ```
 
-PANU: Proximal Arm Non Use SANU: Shoulder Antepulsion Non Use EENU: Elbow Extension Non Use
-
 | name | description                  | unit | range |
 |------|------------------------------|------|-------|
 | PANU | Proximal Arm Non Use         | \%   | 0-100 |
 | SANU | Shoulder Antepulsion Non Use | \%   | 0-100 |
 | EENU | Elbow Extension Non Use      | \%   | 0-100 |
 
+### Description of the experiment, variables, and data characteristics  
+
+**Description of the experiment**  
+The dataset comes from a clinical experiment conducted with post-stroke patients. The aim is to study nonuse of the upper limb, by quantifying how much patients avoid using certain joints during reaching tasks. 
+
+Three levels of nonuse were measured: 
+proximal arm (PANU), 
+shoulder antepulsion (SANU) 
+and elbow extension (EENU) 
+The central question is: is proximal nonuse (PANU) related to nonuse of the shoulder or the elbow?  
+
+**Variables**  
+All variables are continuous, expressed as percentages, and computed by comparing performances between two experimental conditions (free trunk vs blocked trunk).  
+- PANU (Proximal Arm Non Use): nonuse of the proximal arm segment (upper arm).  
+  Unit: % – Theoretical range: 0–100  
+- SANU (Shoulder Antepulsion Non Use): nonuse of the shoulder joint in antepulsion.  
+  Unit: % – Theoretical range: 0–100  
+- EENU (Elbow Extension Non Use): nonuse of the elbow joint in extension.  
+  Unit: % – Theoretical range: 0–100  
+
+**Data characteristics**  
+Each row corresponds to one participant (post-stroke).  
+Columns display the measures for `PANU`, `SANU`, `EENU`.  
+Values are real numbers, theoretically between 0 and 100.  
+In practice, some results may be negative or greater than 100 due to experimental noise.  
+The values for (`EENU`) and (`SANU`) are missing for patients 5 and 6.  
+
+
 Below are some questions to guide your analysis. Is PANU correlated with SANU and/or EENU?
 
-We use Spaerman correlation, bacause we do not have
+We use Spaerman correlation, because we do not have
 
 ## 1.3 Corelation analysis
 
