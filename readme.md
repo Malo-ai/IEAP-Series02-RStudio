@@ -120,7 +120,50 @@ Limits :
 
 2.1 Make clear what is a statistical test, and when to use it. Below are some questions to guide your analysis. You can answer them in your notebook, with a short sentence for each question.
 
-What is a median? A mean? What is a variance? A standard deviation? What is a normal distribution? What is a statistical test? When to use a statistical test? What is a parametric test? A non-parametric test? What are the assumptions of parametric tests? What are the assumptions of non-parametric tests? What is a p-value? What is the risk of error when using a statistical test? What is the difference between a paired and an unpaired test? You can use your favorite LLM, book or web site to answer these questions, but you have to provide at least one reference for each answer (book, article, URL, LLM prompt, etc.).
+**Central tendency :**
+Median : Central tendency of a distribution of ordinal variables. 50% of the observations are below it and 50% are above it. Intersting point : extreme values do not affect it.
+Mean: Central tendency of a distribution of continuous variables. It is the sum of all values divided by the number of values. Intersting point : extreme values affect it.
+
+**Dispersion mesure :**
+Variance: Measure of the dispersion of a distribution. It is the mean of the squared differences between each value and the mean of the distribution. Useful to describe the dispersion of a distribution.
+Standard deviation: Square root of the variance. It is expressed in the same unit as the variable. Useful to describe the dispersion of a distribution.
+Normal distribution: distribution that follows a bell-shaped curve. It is characterized by its mean and standard deviation. Many statistical tests assume that the data follows a normal distribution.
+
+Statistical test : all procedures for expressing parameters or studying their behavior in specific situations.
+You can use it when you follow this rules : 
+1- Hypotheses is clearly define – state null (H₀) and alternative (H₁) hypotheses.
+2- You have check assumptions – verify parametric assumptions (normality, variance homogeneity) or use non-parametric tests if violated.
+3- Choose the correct test – depending on data type, number of groups, paired/unpaired observations.
+4- Decide significance level (α) – commonly 0.05.
+5- Avoid multiple testing without correction – control false positives.
+6- Interpret p-values correctly – p < α indicates evidence against H₀, not proof.
+7- Report effect sizes and confidence intervals – not just p-values.
+8- Consider sample size and power – small samples may give unreliable results
+
+Parametric test : statistical test that assumes the data follow a specific distribution, usually normal, and relies on population parameters (mean, variance).
+Assumptions of a parametric test:
+1- Normality: The data (or residuals) are approximately normally distributed.
+2- Independence: Observations are independent of each other.
+3- Homogeneity of variance: Variances are equal across groups (for tests comparing groups).
+4- Scale of measurement: Data are interval or ratio (continuous).
+5- Random sampling: Data are collected through random sampling from the population.
+6- Linearity (for correlations/regression): Relationship between variables is linear.
+
+A non-parametric test : statistical test that does not assume a specific distribution for the data and is often used for ordinal data or when parametric assumptions are violated.
+What are the assumptions of non-parametric tests : 
+1- Independence: Observations are independent of each other.
+2- Ordinal or continuous data: Data should be at least ordinal (ranked) or continuous.
+3- Similar shape of distributions: For some tests (e.g., Mann-Whitney U), the distributions of the groups should have a similar shape.
+4- Random sampling: Data should be collected through random sampling from the population.
+5- Sufficient sample size: While non-parametric tests are less sensitive to small sample sizes, very small samples may still limit the test's power.
+
+P-value : probability of obtaining test results at least as extreme as the observed results, assuming that the null hypothesis (H₀) is true. It quantifies the evidence against H₀; a smaller p-value indicates stronger evidence to reject H₀.
+Risk of error when using a statistical test : the probability of making a wrong decision based on the test result. The two main types of errors are Type I error (false positive) and Type II error (false negative). The significance level (α) controls the risk of Type I error, while sample size and effect size influence the risk of Type II error.
+Difference between a paired and an unpaired test : 
+paired test : used when comparing two related or matched groups, such as measurements taken from the same subjects before and after an intervention. It accounts for the dependency between observations.
+unpaired test : used when comparing two independent groups, where the observations in one group do not influence or relate to the observations in the other group.
+
+Source : Alain Varray Course, Statistics – Master 1 Common Core – UE3 E1
 
 2.2 Effect of treatment over time This is a very classical question in clinical or sport research: does a treatment-training have an effect over time?
 

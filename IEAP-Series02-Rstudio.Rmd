@@ -119,9 +119,9 @@ Limits :
 
 ### 2 Statistical tests: comparison of medians (or means?)
 
-2.1 Make clear what is a statistical test, and when to use it. Below are some questions to guide your analysis. You can answer them in your notebook, with a short sentence for each question.
+## 2.1 What is a statistical test ? and when to use it ? Below are some questions to guide your analysis. You can answer them in your notebook, with a short sentence for each question.
 
-What is a median? A mean? What is a variance? A standard deviation? What is a normal distribution? What is a statistical test? When to use a statistical test? What is a parametric test? A non-parametric test? What are the assumptions of parametric tests? What are the assumptions of non-parametric tests? What is a p-value? What is the risk of error when using a statistical test? What is the difference between a paired and an unpaired test? You can use your favorite LLM, book or web site to answer these questions, but you have to provide at least one reference for each answer (book, article, URL, LLM prompt, etc.).
+
 
 2.2 Effect of treatment over time This is a very classical question in clinical or sport research: does a treatment-training have an effect over time?
 
