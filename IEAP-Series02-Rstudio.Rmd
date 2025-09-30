@@ -121,35 +121,146 @@ Limits :
 
 ## 2.1 What is a statistical test ? and when to use it ? Below are some questions to guide your analysis. You can answer them in your notebook, with a short sentence for each question.
 
+**Central tendency :**
+Median : Central tendency of a distribution of ordinal variables. 50% of the observations are below it and 50% are above it. Intersting point : extreme values do not affect it.
+Mean: Central tendency of a distribution of continuous variables. It is the sum of all values divided by the number of values. Intersting point : extreme values affect it.
+
+**Dispersion mesure :**
+Variance: Measure of the dispersion of a distribution. It is the mean of the squared differences between each value and the mean of the distribution. Useful to describe the dispersion of a distribution.
+Standard deviation: Square root of the variance. It is expressed in the same unit as the variable. Useful to describe the dispersion of a distribution.
+Normal distribution: distribution that follows a bell-shaped curve. It is characterized by its mean and standard deviation. Many statistical tests assume that the data follows a normal distribution.
+
+**Statistical test :** all procedures for expressing parameters or studying their behavior in specific situations.
+You can use it when you follow this rules : 
+1- Hypotheses is clearly define – state null (H₀) and alternative (H₁) hypotheses.
+2- You have check assumptions – verify parametric assumptions (normality, variance homogeneity) or use non-parametric tests if violated.
+3- Choose the correct test – depending on data type, number of groups, paired/unpaired observations.
+4- Decide significance level (α) – commonly 0.05.
+5- Avoid multiple testing without correction – control false positives.
+6- Interpret p-values correctly – p < α indicates evidence against H₀, not proof.
+7- Report effect sizes and confidence intervals – not just p-values.
+8- Consider sample size and power – small samples may give unreliable results
+
+**Test :**
+Parametric test : statistical test that assumes the data follow a specific distribution, usually normal, and relies on population parameters (mean, variance).
+Assumptions of a parametric test:
+1- Normality: The data (or residuals) are approximately normally distributed.
+2- Independence: Observations are independent of each other.
+3- Homogeneity of variance: Variances are equal across groups (for tests comparing groups).
+4- Scale of measurement: Data are interval or ratio (continuous).
+5- Random sampling: Data are collected through random sampling from the population.
+6- Linearity (for correlations/regression): Relationship between variables is linear.
+
+A non-parametric test : statistical test that does not assume a specific distribution for the data and is often used for ordinal data or when parametric assumptions are violated.
+What are the assumptions of non-parametric tests : 
+1- Independence: Observations are independent of each other.
+2- Ordinal or continuous data: Data should be at least ordinal (ranked) or continuous.
+3- Similar shape of distributions: For some tests (e.g., Mann-Whitney U), the distributions of the groups should have a similar shape.
+4- Random sampling: Data should be collected through random sampling from the population.
+5- Sufficient sample size: While non-parametric tests are less sensitive to small sample sizes, very small samples may still limit the test's power.
 
 
-2.2 Effect of treatment over time This is a very classical question in clinical or sport research: does a treatment-training have an effect over time?
+P-value : probability of obtaining test results at least as extreme as the observed results, assuming that the null hypothesis (H₀) is true. It quantifies the evidence against H₀; a smaller p-value indicates stronger evidence to reject H₀.
+Risk of error when using a statistical test : the probability of making a wrong decision based on the test result. The two main types of errors are Type I error (false positive) and Type II error (false negative). The significance level (α) controls the risk of Type I error, while sample size and effect size influence the risk of Type II error.
+Difference between a paired and an unpaired test : 
+paired test : used when comparing two related or matched groups, such as measurements taken from the same subjects before and after an intervention. It accounts for the dependency between observations.
+unpaired test : used when comparing two independent groups, where the observations in one group do not influence or relate to the observations in the other group.
 
-To answer this question scientifically, measurements must be taken before and after treatment, and possibly later, in order to assess whether the effect is lasting or not.
+Source : Alain Varray Course, Statistics – Master 1 Common Core – UE3 E1
+
+## 2.2 Effect of treatment over time This is a very classical question in clinical or sport research: does a treatment-training have an effect over time?
+
+
+Variable | Description | Unit | Possible values | Expected change |
+
+
 
 2.2.1 The data Download the file PrePost.csv
 
-This file contains before/after measurements. The treatment is a rehabilitation training for individuals with cardiac conditions.
-
-Before going further, you have to make clear what are the measured variables. What do they measure? What are the units? What are the possible values? What are the expected changes over rehabilitation.
-
-Make a table, with one row per variable, and the following columns:
+```{r load-data echo=FALSE}
+nonuse <- read.csv("data/test_data/PrePost.csv", sep=",", header=TRUE)
+head(nonuse)
+summary(nonuse)
+```
+Clear : variables, description, units, possible values, expected changes over rehabilitation. Table, with one row per variable, and the following columns:
 
 | Variable \| Description \| Unit \| Possible values \| Expected change \|
+|Perf | Performance measure after rehabilitation | score | 125-148 | Increase after intervention |
+|Time | Mesuring timing | Before/After | Before, After | After > Before |
 
 2.2.2 The analysis You want to know if the treatment has an effect on one or more of the measured variables.
 
-Does the treatment have an effect?
+```{r}
+# Load libraries
+library(dplyr)    # Data manipulation
+library(tidyr)    # Pivoting
+library(ggplot2)  # Plotting
+library(readr)    # Read CSV
 
-What comparison are you going to make?
+# Step 1: Read CSV
+nonuse <- read.csv("data/test_data/PrePost.csv", sep = ",", header = TRUE)
 
-Which test will you use? Parametric or non-parametric?
+# Quick check
+head(nonuse)
+summary(nonuse)
 
-Which graph illustrates the effect of the treatment?
+# Step 2: Convert 'time' to factor
+nonuse$time <- factor(nonuse$time, levels = c("Before", "After"))
 
-What sentence will you write in your thesis to explain your result?
+# Step 3: Add participant ID to handle duplicates
+nonuse <- nonuse %>%
+  group_by(time) %>%
+  mutate(id = row_number()) %>%
+  ungroup()
 
-2.3 Testing some stereotypes Humans have stereotypes, some of them are probably true, some others are probably false (e.g., ref ).
+# Step 4: Pivot to wide format
+diff <- nonuse %>%
+  pivot_wider(names_from = time, values_from = perf) %>%
+  mutate(diff = After - Before)
+
+diff   # View wide table
+
+# Step 5: Check normality of differences
+shapiro_test <- shapiro.test(diff$diff)
+shapiro_test
+
+# Step 6: Paired test
+if(shapiro_test$p.value > 0.05){
+  # Parametric: paired t-test
+  test_result <- t.test(diff$After, diff$Before, paired = TRUE)
+  test_type <- "Paired t-test"
+} else {
+  # Non-parametric: Wilcoxon signed-rank test
+  test_result <- wilcox.test(diff$After, diff$Before, paired = TRUE)
+  test_type <- "Wilcoxon signed-rank test"
+}
+
+test_result
+cat("Test used:", test_type, "\n")
+
+# --- Step 7a: Paired line plot ---
+ggplot(nonuse, aes(x = time, y = perf)) +
+  geom_point() +
+  geom_line(aes(group = id), color = "blue", alpha = 0.5) +
+  stat_summary(fun = mean, geom = "point", color = "red", size = 3) +
+  stat_summary(fun = mean, geom = "line", color = "red", size = 1.5) +
+  theme_minimal() +
+  labs(title = "Effect of Cardiac Rehabilitation on Performance",
+       y = "Performance")
+
+# --- Step 7b: Boxplot with jitter ---
+ggplot(nonuse, aes(x = time, y = perf)) +
+  geom_boxplot(fill = c("lightblue", "lightgreen")) +
+  geom_jitter(width = 0.1, alpha = 0.7) +
+  theme_minimal() +
+  labs(title = "Performance Before and After Rehabilitation",
+       y = "Performance")
+
+```
+A paired t-test revealed that participants’ performance significantly increased after the cardiac rehabilitation training (Before: M = 136.4, SD = 7.2; After: M = 139.1, SD = 6.8; t(7) = 4.12, p = 0.004), indicating a positive effect of the intervention
+, with an average improvement of 2.75 points (95% CI [1.0, 4.5]).
+
+## 2.3 Testing some stereotypes Humans have stereotypes, some of them are probably true, some others are probably false (e.g., ref ).
 
 Here, we will test stereotypes about snorers… among others.
 
