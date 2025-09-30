@@ -53,21 +53,22 @@ In practice, some results may be negative or greater than 100 due to experimenta
 The values for (`EENU`) and (`SANU`) are missing for patients 5 and 6.  
 
 
-Below are some questions to guide your analysis. Is PANU correlated with SANU and/or EENU?
-
-We use Spaerman correlation, because we do not have
-
 ## 1.3 Corelation analysis
 
+Since some values are missing, we use a Spearman correlation to observe whether patients with high PANU tend to have high SANU or EENU, without assuming a normal or linear distribution.
+
 ```{r}
-cor.test(nonuse$PANU, nonuse$SANU, method="pearson")
+cor.test(nonuse$PANU, nonuse$SANU, method="spearman")
 ```
 
-Below are some questions to guide your analysis.
+Spearman correlation revealed a weak but significant positive association between PANU and SANU (ρ = 0.22, p = 0.002), indicating that patients with higher proximal arm nonuse tended to exhibit slightly higher shoulder nonuse.
 
-Is PANU correlated with SANU and/or EENU?
+```{r}
+cor.test(nonuse$PANU, nonuse$EENU, method="spearman")
+```
+Spearman correlation revealed a moderate and highly significant positive association between PANU and EENU (ρ = 0.39, p < 0.001), indicating that patients with higher proximal arm nonuse tended to also exhibit higher elbow nonuse.
 
-Visualize the PANU-SANU relationship (and the PANU-EENU relationship)
+Visualize the PANU-SANU relationship and the PANU-EENU relationship
 
 ```{r plot sanu}
 library(ggplot2)
@@ -102,12 +103,20 @@ slope <- coef(lm_sanu)[2]
 intercept <- coef(lm_sanu)[1]
 cat("Regression equation: SANU =", slope, "* PANU +", intercept, "\n")
 ```
+Results summarize: 
+Linear regression indicated a very weak positive relationship between proximal arm nonuse (PANU) and shoulder nonuse (SANU), but this association was not statistically significant (SANU = 0.089 * PANU + 0.586, p = 0.171, R² = 0.009). Spearman correlation, however, suggested a weak monotone trend (ρ = 0.22, p = 0.002), indicating that patients with higher PANU may slightly tend to have higher SANU.
 
-Summarize your results as you would do in your master’s thesis report, or as in a scientific article (e.g., What sentence will you write in the article explaining your result?).
 
-What are the limits of your analysis?
+Limits : 
 
-2 Statistical tests: comparison of medians (or means?) In this series of exercises, you will explore how to compare two groups of data, using non-parametric tests (or parametric tests… if it makes sense to do so).
+- Linear regression assumptions: the relationship may be monotone rather than strictly linear, which reduces R².
+- Weak association: slope is small, explaining very little variance.
+- Missing data: 223 observations were removed, reducing power.
+- Outliers: residuals range widely (-40 to 39), which can distort linear estimates.
+- Correlation ≠ causation: cannot infer that PANU causes SANU
+
+
+## 2 Statistical tests: comparison of medians (or means?) In this series of exercises, you will explore how to compare two groups of data, using non-parametric tests (or parametric tests… if it makes sense to do so).
 
 2.1 Make clear what is a statistical test, and when to use it. Below are some questions to guide your analysis. You can answer them in your notebook, with a short sentence for each question.
 
