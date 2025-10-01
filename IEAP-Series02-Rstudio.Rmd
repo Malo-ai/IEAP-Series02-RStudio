@@ -170,6 +170,9 @@ Source : Alain Varray Course, Statistics – Master 1 Common Core – UE3 E1
 
 ## 2.2 Effect of treatment over time This is a very classical question in clinical or sport research: does a treatment-training have an effect over time?
 
+This project evaluates the effect of a cardiac rehabilitation program on participant performance.  
+Using pre- and post-intervention performance scores, the study applies paired t-tests and visualizations (line plots, boxplots with jitter) to assess improvements. The analysis highlights significant performance gains and illustrates individual responses to the intervention. 
+
 2.2.1 Download the file PrePost.csv
 
 | name | description                  | unit | range |
@@ -183,10 +186,6 @@ nonuse <- read.csv("data/test_data/PrePost.csv", sep=",", header=TRUE)
 head(nonuse)
 summary(nonuse)
 ```
-
-
-
-2.2.2 The analysis You want to know if the treatment has an effect on one or more of the measured variables.
 
 | Variable \| Description \| Unit \| Possible values \| Expected change \|
 |Perf | Performance measure after rehabilitation | score | 125-148 | Increase after intervention |
@@ -270,6 +269,8 @@ A paired t-test was conducted to compare performance before and after the cardia
 Conclusion : This indicates that the rehabilitation program had a positive effect on participant performance.  
 
 ## 2.3 Testing some stereotypes Humans have stereotypes, some of them are probably true, some others are probably false (e.g., ref ).
+
+This project explores potential associations between snoring, body weight, alcohol consumption, smoking habits, and sex. Using a combination of non-parametric tests (Wilcoxon), Chi-squared/Fisher tests, and correlation analysis, it investigates common stereotypes (e.g., “snorers are heavier” or “men smoke more”). Visualizations include boxplots, barplots, and correlation matrices to illustrate relationships between variables.
 
 ## 2.3.1 The data Download the file snore.txt
 
@@ -446,7 +447,7 @@ Age does not correlate meaningfully with weight, height, or alcohol.
 **General conclusion :**
 Some stereotypes are not supported (weight by snoring, weight by sex, smoking by snoring).
 Others are supported (snorers drink more, women smoke less).
-Numeric variables mostly show expected anthropometric correlations (weight ↔ height), but alcohol is largely independent.
+Numeric variables mostly show expected anthropometric correlations (weight ↔ height), but alcohol is largely independent.  
 
 # 3. Epilogue
 

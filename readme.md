@@ -118,7 +118,11 @@ Linear regression indicated a very weak positive relationship between proximal a
 
 ### 2 Statistical tests: comparison of medians (or means?)
 
-2.1 Make clear what is a statistical test, and when to use it. Below are some questions to guide your analysis. You can answer them in your notebook, with a short sentence for each question.
+This project evaluates the effect of a cardiac rehabilitation program on participant performance.  
+Using pre- and post-intervention performance scores, the study applies paired t-tests and visualizations (line plots, boxplots with jitter) to assess improvements.  
+The analysis highlights significant performance gains and illustrates individual responses to the intervention.  
+
+2.1 Make clear what is a statistical test, and when to use it.
 
 **Central tendency :**
 Median : Central tendency of a distribution of ordinal variables. 50% of the observations are below it and 50% are above it. Intersting point : extreme values do not affect it.
@@ -206,6 +210,11 @@ This indicates that the rehabilitation program had a positive effect on particip
 
 
 ## 2.3 Testing some stereotypes Humans have stereotypes, some of them are probably true, some others are probably false (e.g., ref ).
+
+This project explores potential associations between snoring, body weight, alcohol consumption, smoking habits, and sex.  
+Using a combination of non-parametric tests (Wilcoxon), Chi-squared/Fisher tests, and correlation analysis, it investigates common stereotypes (e.g., “snorers are heavier” or “men smoke more”).  
+Visualizations include boxplots, barplots, and correlation matrices to illustrate relationships between variables.
+
 # 2.3.1 Load Data snore.txt
 
 # 2.3.2 The analysis
