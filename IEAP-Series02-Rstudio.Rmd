@@ -172,11 +172,19 @@ Source : Alain Varray Course, Statistics – Master 1 Common Core – UE3 E1
 
 2.2.1 Download the file PrePost.csv
 
+| name | description                  | unit | range |
+|------|------------------------------|------|-------|
+| PANU | Proximal Arm Non Use         | \%   | 0-100 |
+| SANU | Shoulder Antepulsion Non Use | \%   | 0-100 |
+| EENU | Elbow Extension Non Use      | \%   | 0-100 |
+
 ```{r load-data echo=FALSE}
 nonuse <- read.csv("data/test_data/PrePost.csv", sep=",", header=TRUE)
 head(nonuse)
 summary(nonuse)
 ```
+
+
 
 2.2.2 The analysis You want to know if the treatment has an effect on one or more of the measured variables.
 
@@ -220,8 +228,14 @@ print(shapiro_test)
 t_result <- t.test(PrePost_wide$Before, PrePost_wide$After, paired = TRUE)
 print(t_result)
 
+# --- Helper function to save ggplot as PNG ---
+save_ggplot_png <- function(plot, filename, width=8, height=6, dpi=150) {
+  ggsave(filename, plot=plot, width=width, height=height, dpi=dpi)
+  print(plot)  # display in notebook
+}
+
 # Step 7a: Paired line plot
-ggplot(PrePost, aes(x = time, y = perf)) +
+line_plot <- ggplot(PrePost, aes(x = time, y = perf)) +
   geom_point() +
   geom_line(aes(group = id), color = "blue", alpha = 0.5) +
   stat_summary(fun = mean, geom = "point", color = "red", size = 3) +
@@ -230,15 +244,30 @@ ggplot(PrePost, aes(x = time, y = perf)) +
   labs(title = "Effect of Cardiac Rehabilitation on Performance",
        y = "Performance")
 
+# Save and display
+save_ggplot_png(line_plot, "Paired_Line_Plot.png")
+
 # Step 7b: Boxplot with jitter
-ggplot(PrePost, aes(x = time, y = perf)) +
+box_plot <- ggplot(PrePost, aes(x = time, y = perf)) +
   geom_boxplot(fill = c("lightblue", "lightgreen")) +
   geom_jitter(width = 0.1, alpha = 0.7) +
   theme_minimal() +
   labs(title = "Performance Before and After Rehabilitation",
        y = "Performance")
+
+# Save and display
+save_ggplot_png(box_plot, "Boxplot_Performance.png")
 ```
-A paired t-test was conducted to compare performance before and after the cardiac rehabilitation program. There was a significant increase in performance after the intervention, t(7) = -5.40, p = 0.001, with a mean difference of -2.5 (95% CI [-3.59, -1.41]). This indicates that the rehabilitation program had a positive effect on participant performance.
+# 2.2.2. Analysis
+
+Test used : Paired t-test (parametric) because the differences are normally distributed (Shapiro-Wilk p = 0.20 > 0.05).  
+
+Graph used : Paired line plot and boxplot with jitter because they effectively show individual changes and group distributions. 
+
+Results : 
+A paired t-test was conducted to compare performance before and after the cardiac rehabilitation program. There was a significant increase in performance after the intervention, t(7) = -5.40, p = 0.001, with a mean difference of -2.5 (95% CI [-3.59, -1.41]).  
+
+Conclusion : This indicates that the rehabilitation program had a positive effect on participant performance.  
 
 ## 2.3 Testing some stereotypes Humans have stereotypes, some of them are probably true, some others are probably false (e.g., ref ).
 
@@ -382,6 +411,44 @@ print(p_corr)  # Display in notebook
 ggsave("Correlation_matrix.png", plot=p_corr, width=8, height=6, dpi=150)
 
 ```
+# 2.3.3. Analysis
 
+**Q1. Are snorers fatter?**
+Test: Wilcoxon rank sum test   
+Résultat: W = 1154, p = 0.908 → non significatif    
+Conclusion: There is no evidence that snorers are heavier than non-snorers. The data do not confirm this stereotype  
 
+**Q2. Do snorers drink more?**  
+Test: Wilcoxon rank sum test  
+Résultat: W = 788, p = 0.0086 → significatif  
+Conclusion: Snorers tend to consume more alcohol per week than non-snorers. The data support this stereotype.  
+
+**Q3. Do snorers smoke more?**  
+Test: Pearson's Chi-squared test  
+Résultat: X² = 0.689, p = 0.407 → non significatif  
+Conclusion: There is no evidence that snorers smoke more than non-snorers. The data do not confirm this stereotype  
+
+**Q4. Are men fatter?**  
+Test: Wilcoxon rank sum test  
+Résultat: W = 981.5, p = 0.729 → non significatif  
+Conclusion: There is no evidence that men weigh more than women in this sample. The data do not support this stereotype.  
+
+**Q5. Do women smoke less?**  
+Test: Pearson's Chi-squared test  
+Résultat: X² = 7.002, p = 0.0081 → significatif  
+Conclusion: Women smoke significantly less than men. The data confirm this stereotype.  
+
+**Correlations between variables**
+Weight and height are highly correlated (0.93), which is expected.
+Alcohol consumption shows very weak correlations with other numeric variables.
+Age does not correlate meaningfully with weight, height, or alcohol.
+
+**General conclusion :**
+Some stereotypes are not supported (weight by snoring, weight by sex, smoking by snoring).
+Others are supported (snorers drink more, women smoke less).
+Numeric variables mostly show expected anthropometric correlations (weight ↔ height), but alcohol is largely independent.
+
+# 3. Epilogue
+
+Probably, in complex systems, we can make predictions based on the variability of data at a given time on the evolution of a system. In addition, considering the strength of the relationships allows us to put into perspective which indicator to play on and why for the organization/disorganization of a system. (e.g. sports team, organization of political bodies and declaration of law in France, cellular development, ....).
 

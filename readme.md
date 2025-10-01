@@ -1,6 +1,8 @@
 ---
-title: "R_Series_02"
+title: "IEAP-Series02-Rstudio"
 output: html_notebook
+Autor : Bertrand--Goarin Malo
+Date : 01/10/2024
 ---
 
 IEAP-2025 Series 02 RStudio Data mining and statistical tests 
@@ -192,7 +194,10 @@ A paired t-test was conducted to compare performance before and after the cardia
 There was a significant increase in performance after the intervention, t(7) = -5.40, p = 0.001, 
 with a mean difference of -2.5 (95% CI [-3.59, -1.41]). 
 This indicates that the rehabilitation program had a positive effect on participant performance.  
-Step 7: Visualization  
+Step 7: Visualization
+
+![Paired Line Plot](Paired_Line_Plot.png)
+![Boxplot Performance](Boxplot_Performance.png)
   
 **Conclusion :** A paired t-test was conducted to compare performance before and after the cardiac rehabilitation program. 
 There was a significant increase in performance after the intervention, t(7) = -5.40, p = 0.001, with a mean difference of -2.5 (95% CI [-3.59, -1.41]). 
@@ -247,6 +252,12 @@ Some stereotypes are not supported (weight by snoring, weight by sex, smoking by
 Others are supported (snorers drink more, women smoke less).
 Numeric variables mostly show expected anthropometric correlations (weight ↔ height), but alcohol is largely independent.
 
+# 3. Epilogue
+
+Probably, in complex systems, we can make predictions based on the variability of data at a given time on the evolution of a system.
+In addition, considering the strength of the relationships allows us to put into perspective which indicator to play on and why for the organization/disorganization of a system.
+(e.g. sports team, organization of political bodies and declaration of law in France, cellular development, ....).
+
 ### Personnal conclusion : 
 
 For this work, I used the LLM ChatGPT-5. I asked for help with:
@@ -267,3 +278,13 @@ The answer is :
 - Clarify the expected behavior or desired outcome.  
 - Provide the data or a sample.  
 - Specify the purpose.  
+
+### References and Data sources
+Data source :   
+- NonUse.csv : https://github.com/DenisMot/RStudio-for-HMS-Template.git   
+- PrePost.csv : https://github.com/DenisMot/RStudio-for-HMS-Template.git   
+- snore.txt : https://github.com/DenisMot/RStudio-for-HMS-Template.git   
+- Alain Varray Course, Statistics – Master 1 Common Core – UE3 E1   
+- ChatGPT-5   
+  
+Time spend into this project : 6 hours.
