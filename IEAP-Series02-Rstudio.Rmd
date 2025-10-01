@@ -1,6 +1,8 @@
 ---
 title: "IEAP-Series02-Rstudio.Rmd"
 output: html_notebook
+Autor : Bertrand--Goarin Malo
+Date : 01/10/2024
 ---
 ### 1. IEAP-Series02-Rstudio
 
@@ -453,3 +455,12 @@ Numeric variables mostly show expected anthropometric correlations (weight ↔ h
 
 Probably, in complex systems, we can make predictions based on the variability of data at a given time on the evolution of a system. In addition, considering the strength of the relationships allows us to put into perspective which indicator to play on and why for the organization/disorganization of a system. (e.g. sports team, organization of political bodies and declaration of law in France, cellular development, ....).
 
+### References and Data sources
+Data source :   
+- NonUse.csv : https://github.com/DenisMot/RStudio-for-HMS-Template.git   
+- PrePost.csv : https://github.com/DenisMot/RStudio-for-HMS-Template.git   
+- snore.txt : https://github.com/DenisMot/RStudio-for-HMS-Template.git   
+- Alain Varray Course, Statistics – Master 1 Common Core – UE3 E1   
+- ChatGPT-5   
+  
+Time spend into this project : 6 hours.
