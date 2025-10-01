@@ -170,25 +170,19 @@ Source : Alain Varray Course, Statistics – Master 1 Common Core – UE3 E1
 
 ## 2.2 Effect of treatment over time This is a very classical question in clinical or sport research: does a treatment-training have an effect over time?
 
-
-Variable | Description | Unit | Possible values | Expected change |
-
-
-
-2.2.1 The data Download the file PrePost.csv
+2.2.1 Download the file PrePost.csv
 
 ```{r load-data echo=FALSE}
 nonuse <- read.csv("data/test_data/PrePost.csv", sep=",", header=TRUE)
 head(nonuse)
 summary(nonuse)
 ```
-Clear : variables, description, units, possible values, expected changes over rehabilitation. Table, with one row per variable, and the following columns:
+
+2.2.2 The analysis You want to know if the treatment has an effect on one or more of the measured variables.
 
 | Variable \| Description \| Unit \| Possible values \| Expected change \|
 |Perf | Performance measure after rehabilitation | score | 125-148 | Increase after intervention |
 |Time | Mesuring timing | Before/After | Before, After | After > Before |
-
-2.2.2 The analysis You want to know if the treatment has an effect on one or more of the measured variables.
 
 ```{r}
 # Load libraries
@@ -197,48 +191,36 @@ library(tidyr)    # Pivoting
 library(ggplot2)  # Plotting
 library(readr)    # Read CSV
 
-# Step 1: Read CSV
+# Step 1: Load CSV
 PrePost <- read.csv("data/test_data/PrePost.csv", sep = ",", header = TRUE)
 
-# Quick check
-head(PrePost)
-summary(PrePost)
-
-# Step 2: Convert 'time' to factor
+# Step 2: Convert 'time' to factor (Before/After)
 PrePost$time <- factor(PrePost$time, levels = c("Before", "After"))
 
-# Step 3: Add participant ID to handle duplicates
+# Step 3: Add participant ID
 PrePost <- PrePost %>%
   group_by(time) %>%
   mutate(id = row_number()) %>%
   ungroup()
 
 # Step 4: Pivot to wide format
-diff <- PrePost %>%
+PrePost_wide <- PrePost %>%
   pivot_wider(names_from = time, values_from = perf) %>%
   mutate(diff = After - Before)
 
-diff   # View wide table
+# Quick check
+head(PrePost_wide)
+summary(PrePost)
 
-# Step 5: Check normality of differences
-shapiro_test <- shapiro.test(diff$diff)
-shapiro_test
+# Step 5: Normality test on differences
+shapiro_test <- shapiro.test(PrePost_wide$diff)
+print(shapiro_test)
 
-# Step 6: Paired test
-if(shapiro_test$p.value > 0.05){
-  # Parametric: paired t-test
-  test_result <- t.test(diff$After, diff$Before, paired = TRUE)
-  test_type <- "Paired t-test"
-} else {
-  # Non-parametric: Wilcoxon signed-rank test
-  test_result <- wilcox.test(diff$After, diff$Before, paired = TRUE)
-  test_type <- "Wilcoxon signed-rank test"
-}
+# Step 6: Paired t-test
+t_result <- t.test(PrePost_wide$Before, PrePost_wide$After, paired = TRUE)
+print(t_result)
 
-test_result
-cat("Test used:", test_type, "\n")
-
-# --- Step 7a: Paired line plot ---
+# Step 7a: Paired line plot
 ggplot(PrePost, aes(x = time, y = perf)) +
   geom_point() +
   geom_line(aes(group = id), color = "blue", alpha = 0.5) +
@@ -248,17 +230,15 @@ ggplot(PrePost, aes(x = time, y = perf)) +
   labs(title = "Effect of Cardiac Rehabilitation on Performance",
        y = "Performance")
 
-# --- Step 7b: Boxplot with jitter ---
+# Step 7b: Boxplot with jitter
 ggplot(PrePost, aes(x = time, y = perf)) +
   geom_boxplot(fill = c("lightblue", "lightgreen")) +
   geom_jitter(width = 0.1, alpha = 0.7) +
   theme_minimal() +
   labs(title = "Performance Before and After Rehabilitation",
        y = "Performance")
-
 ```
-A paired t-test revealed that participants’ performance significantly increased after the cardiac rehabilitation training (Before: M = 136.4, SD = 7.2; After: M = 139.1, SD = 6.8; t(7) = 4.12, p = 0.004), indicating a positive effect of the intervention
-, with an average improvement of 2.75 points (95% CI [1.0, 4.5]).
+A paired t-test was conducted to compare performance before and after the cardiac rehabilitation program. There was a significant increase in performance after the intervention, t(7) = -5.40, p = 0.001, with a mean difference of -2.5 (95% CI [-3.59, -1.41]). This indicates that the rehabilitation program had a positive effect on participant performance.
 
 ## 2.3 Testing some stereotypes Humans have stereotypes, some of them are probably true, some others are probably false (e.g., ref ).
 
@@ -270,45 +250,39 @@ head(nonuse)
 summary(nonuse)
 ```
 
-Answer 5 questions 
+Answer Question (1,2,3,4,5)
 
 ```{r}
+# Load libraries
+library(dplyr)
+library(ggplot2)
+library(readr)
+library(GGally)
 
-# --- Load libraries ---
-library(dplyr)      # data manipulation
-library(ggplot2)    # plots
-library(readr)      # read data
-library(GGally)     # correlation plots
-
-# --- Step 1: Import data ---
+# Step 1: Import data
 snore <- read.table("data/test_data/snore.txt", header = TRUE)
 
-# Recode des qualitatives
+# Step 2: Recode categorical variables
 snore$sex   <- factor(snore$sex,   levels = c("H","F"), labels = c("Homme","Femme"))
 snore$snore <- factor(snore$snore, levels = c("N","O"), labels = c("Non","Oui"))
 snore$tabac <- factor(snore$tabac, levels = c("N","O"), labels = c("Non","Oui"))
 
-# Conversion des colonnes numériques
+# Step 3: Convert numeric columns
 num_cols <- c("age", "weight", "height", "alcool")
 for (col in num_cols) {
   snore[[col]] <- as.numeric(as.character(snore[[col]]))
 }
 
-# --- Fonction utile pour choix test t-test ou Wilcoxon ---
+# Step 4: Function to choose t-test or Wilcoxon
 run_test_numeric <- function(var, group) {
   tbl <- table(group)
-  
-  # Si taille de groupe <3, test non-paramétrique par défaut
   if (any(tbl < 3)) {
-    cat("Taille de groupe trop petite, utilisation Wilcoxon\n")
+    cat("Group size too small, using Wilcoxon test\n")
     res <- wilcox.test(var ~ group)
   } else {
-    # Test normalité Shapiro
     normal <- all(sapply(levels(group), function(g) {
       length(var[group==g])>=3 && shapiro.test(var[group==g])$p.value > 0.05
     }))
-    
-    # Test variances égales
     if (normal) {
       equal_var <- var.test(var ~ group)$p.value > 0.05
       res <- t.test(var ~ group, var.equal = equal_var)
@@ -319,7 +293,7 @@ run_test_numeric <- function(var, group) {
   return(res)
 }
 
-# --- Fonction pour test qualitatif χ² ou Fisher ---
+# Step 5: Function for categorical test
 run_test_categorical <- function(var, group) {
   tab <- table(var, group)
   if (any(chisq.test(tab)$expected < 5)) {
@@ -330,65 +304,84 @@ run_test_categorical <- function(var, group) {
   return(res)
 }
 
-# --- Q1 : Poids selon ronflement ---
-cat("\nQ1 : Poids selon ronflement\n")
+# Step 6: Helper to display + save base R plots
+display_save_base <- function(plot_expr, filename, width=800, height=600) {
+  # Display in notebook
+  eval(plot_expr)
+  
+  # Save to PNG
+  png(filename, width=width, height=height)
+  eval(plot_expr)
+  dev.off()
+}
+
+# --- Q1: Weight by snoring ---
+cat("\nQ1: Weight by snoring\n")
 res1 <- run_test_numeric(snore$weight, snore$snore)
 print(res1)
-boxplot(weight ~ snore, data=snore, main="Poids selon ronflement",
-        ylab="Poids (kg)", xlab="Ronflement")
+display_save_base(
+  quote(boxplot(weight ~ snore, data=snore,
+                main="Weight by snoring",
+                ylab="Weight (kg)",
+                xlab="Snoring")),
+  "Weight_by_snoring.png"
+)
 
-# --- Q2 : Alcool selon ronflement ---
-cat("\nQ2 : Alcool selon ronflement\n")
+# --- Q2: Alcohol by snoring ---
+cat("\nQ2: Alcohol by snoring\n")
 res2 <- run_test_numeric(snore$alcool, snore$snore)
 print(res2)
-boxplot(alcool ~ snore, data=snore, main="Alcool selon ronflement",
-        ylab="Verres/semaine", xlab="Ronflement")
+display_save_base(
+  quote(boxplot(alcool ~ snore, data=snore,
+                main="Alcohol by snoring",
+                ylab="Glasses/week",
+                xlab="Snoring")),
+  "Alcohol_by_snoring.png"
+)
 
-# --- Q3 : Tabac selon ronflement ---
-cat("\nQ3 : Tabac selon ronflement\n")
+# --- Q3: Smoking by snoring ---
+cat("\nQ3: Smoking by snoring\n")
 res3 <- run_test_categorical(snore$tabac, snore$snore)
 print(res3)
-barplot(table(snore$tabac, snore$snore), beside=TRUE, legend=TRUE,
-        main="Tabac selon ronflement")
+display_save_base(
+  quote(barplot(table(snore$tabac, snore$snore), beside=TRUE, legend=TRUE,
+                main="Smoking by snoring", xlab="Snoring", ylab="Count")),
+  "Smoking_by_snoring.png"
+)
 
-# --- Q4 : Poids selon sexe ---
-cat("\nQ4 : Poids selon sexe\n")
+# --- Q4: Weight by sex ---
+cat("\nQ4: Weight by sex\n")
 res4 <- run_test_numeric(snore$weight, snore$sex)
 print(res4)
-boxplot(weight ~ sex, data=snore, main="Poids selon sexe",
-        ylab="Poids (kg)", xlab="Sexe")
+display_save_base(
+  quote(boxplot(weight ~ sex, data=snore,
+                main="Weight by sex",
+                ylab="Weight (kg)",
+                xlab="Sex")),
+  "Weight_by_sex.png"
+)
 
-# --- Q5 : Tabac selon sexe ---
-cat("\nQ5 : Tabac selon sexe\n")
+# --- Q5: Smoking by sex ---
+cat("\nQ5: Smoking by sex\n")
 res5 <- run_test_categorical(snore$tabac, snore$sex)
 print(res5)
-barplot(table(snore$tabac, snore$sex), beside=TRUE, legend=TRUE,
-        main="Tabac selon sexe")
+display_save_base(
+  quote(barplot(table(snore$tabac, snore$sex), beside=TRUE, legend=TRUE,
+                main="Smoking by sex", xlab="Sex", ylab="Count")),
+  "Smoking_by_sex.png"
+)
 
-# --- Corrélations générales (variables numériques) ---
+# --- General correlations (numeric variables) ---
 num_vars <- snore[, c("age","weight","height","alcool")]
 cor_matrix <- cor(num_vars, use="complete.obs", method="spearman")
 print(cor_matrix)
 
+# Display + save correlation matrix using GGally
+p_corr <- GGally::ggcorr(num_vars, label=TRUE, label_round=2)
+print(p_corr)  # Display in notebook
+ggsave("Correlation_matrix.png", plot=p_corr, width=8, height=6, dpi=150)
+
 ```
 
-Poids selon ronflement
-« Les individus qui ronflent avaient un poids légèrement plus élevé que ceux qui ne ronflent pas. Le test statistique approprié (t-test ou Wilcoxon selon conditions) a montré que cette différence était [significative/non significative], p = … »
 
-Alcool selon ronflement
-« La consommation d’alcool ne différait pas significativement entre les ronfleurs et les non-ronfleurs (p = …). »
 
-Tabac selon ronflement
-« Les ronfleurs étaient plus susceptibles d’être fumeurs que les non-ronfleurs. Le test χ²/Fisher a montré une différence significative, p = … »
-
-Poids selon sexe
-« Les hommes avaient un poids moyen plus élevé que les femmes. Le test statistique a confirmé que la différence était significative, p = … »
-
-Tabac selon sexe
-« Les femmes fumaient moins fréquemment que les hommes. Le test χ²/Fisher a montré une différence significative, p = … »
-
-Corrélations générales
-« Une analyse de corrélation (Spearman) a révélé que le poids était positivement corrélé avec la consommation d’alcool et avec le ronflement, indiquant que certains facteurs de style de vie peuvent être liés entre eux. »
-
-Répondre à la question : do we have any correlation beetween variable ? 
-IDK for the moment because i go to librarie to answer and have a complete relecture 
